@@ -9,6 +9,7 @@ From this directory run `python3 -m http.server 8000`. Open the local server in 
 - `index.html`: home page sections.
 - `about.html`, `activities.html`, `safety.html`, `contact.html`: individual page content.
 - `styles.css`: colours, typography, mobile layouts and animations.
+- `neon.css`: midnight neon theme, lime and cyan accents, glowing cards, responsive layout refinements. Edit the variables at the top to change the palette.
 - `app.js`: navigation and entrance animations.
 
 Commit edits through GitHub's file editor. To deploy, use repository Settings → Pages → Deploy from a branch, select your published branch and `/ (root)`. No credentials or backend are required.

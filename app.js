@@ -16,3 +16,16 @@ if ('IntersectionObserver' in window) {
  document.querySelectorAll('.cards article,.split,.callout').forEach(el=>{el.classList.add('reveal');observer.observe(el);});
 }
 document.addEventListener('keydown', e=>{if(e.key==='Escape'){document.querySelector('nav').classList.remove('open');menu.setAttribute('aria-expanded','false');}});
+const header = document.querySelector('header');
+const updateHeader = () => header.classList.toggle('scrolled', window.scrollY > 20);
+window.addEventListener('scroll', updateHeader, {passive:true});
+updateHeader();
+if (window.matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) {
+ document.querySelectorAll('.cards article').forEach(card => {
+  card.addEventListener('pointermove', event => {
+   const bounds = card.getBoundingClientRect();
+   card.style.setProperty('--mouse-x', `${event.clientX - bounds.left}px`);
+   card.style.setProperty('--mouse-y', `${event.clientY - bounds.top}px`);
+  });
+ });
+}
