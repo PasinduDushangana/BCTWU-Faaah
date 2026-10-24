@@ -1,31 +1,45 @@
 const menu = document.querySelector('.menu');
+const nav = document.querySelector('nav');
+const closeMenu = () => { nav.classList.remove('open'); menu.setAttribute('aria-expanded', 'false'); };
 menu.addEventListener('click', () => {
- const open = document.querySelector('nav').classList.toggle('open');
- menu.setAttribute('aria-expanded', String(open));
+  const open = nav.classList.toggle('open');
+  menu.setAttribute('aria-expanded', String(open));
 });
-const current = location.pathname.split('/').pop() || 'index.html';
-document.querySelectorAll('nav a').forEach(a => { if(a.getAttribute('href') === current){a.classList.add('active');a.setAttribute('aria-current','page');} });
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && nav.classList.contains('open')) { closeMenu(); menu.focus(); }
+});
+document.addEventListener('click', event => { if (!event.target.closest('header')) closeMenu(); });
+window.matchMedia('(min-width: 801px)').addEventListener('change', event => { if (event.matches) closeMenu(); });
+// Show the introduction once per tab. CSS also dismisses it without JavaScript.
+try {
+  if (sessionStorage.getItem('bctwu-visited')) document.querySelector('.loader').classList.add('visited');
+  sessionStorage.setItem('bctwu-visited', '1');
+} catch { /* CSS handles the introduction when storage is disabled. */ }
 const announcements = document.querySelector('#announcements');
-if(announcements) window.SITE.announcements.forEach(item => {
- const card = document.createElement('article');
- ['span','h3','p'].forEach((tag,i) => {const el=document.createElement(tag);el.textContent=[item.tag,item.title,item.text][i];card.append(el);});
- announcements.append(card);
+const links = ['about.html', 'contact.html', 'safety.html'];
+if (announcements && window.SITE) window.SITE.announcements.forEach((item, index) => {
+  const card = document.createElement('article');
+  card.className = 'notice reveal';
+  ['span', 'h3', 'p'].forEach((tag, i) => {
+    const element = document.createElement(tag);
+    element.textContent = [item.tag, item.title, item.text][i];
+    card.append(element);
+  });
+  const link = document.createElement('a');
+  link.className = 'inline-link';
+  link.href = links[index % links.length];
+  link.innerHTML = 'Explore more <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12" stroke="currentColor" stroke-width="1.5"/></svg>';
+  card.append(link);
+  announcements.append(card);
 });
-if ('IntersectionObserver' in window) {
- const observer=new IntersectionObserver(entries => entries.forEach(entry => {if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target);}}),{threshold:.12});
- document.querySelectorAll('.cards article,.split,.callout').forEach(el=>{el.classList.add('reveal');observer.observe(el);});
+if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+  }), {threshold: 0.08});
+  document.body.classList.add('motion-ready');
+  document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
 }
-document.addEventListener('keydown', e=>{if(e.key==='Escape'){document.querySelector('nav').classList.remove('open');menu.setAttribute('aria-expanded','false');}});
 const header = document.querySelector('header');
 const updateHeader = () => header.classList.toggle('scrolled', window.scrollY > 20);
-window.addEventListener('scroll', updateHeader, {passive:true});
+window.addEventListener('scroll', updateHeader, {passive: true});
 updateHeader();
-if (window.matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) {
- document.querySelectorAll('.cards article').forEach(card => {
-  card.addEventListener('pointermove', event => {
-   const bounds = card.getBoundingClientRect();
-   card.style.setProperty('--mouse-x', `${event.clientX - bounds.left}px`);
-   card.style.setProperty('--mouse-y', `${event.clientY - bounds.top}px`);
-  });
- });
-}
